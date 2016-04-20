@@ -10,7 +10,7 @@ setup(
 
     # Dependencies
     install_requires=[
-        'bitstruct==1.0.0',
+        'bitstruct==3.1.0',
     ],
 
     # Tests

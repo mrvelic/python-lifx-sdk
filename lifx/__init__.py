@@ -1,2 +1,2 @@
-from client import Client
+from lifx.client import Client
 

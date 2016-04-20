@@ -3,11 +3,11 @@ import threading
 from datetime import datetime, timedelta
 from pkg_resources import iter_entry_points
 
-import network
-import protocol
-import device
-import util
-import group
+from lifx import network
+from lifx import protocol
+from lifx import device
+from lifx import util
+from lifx import group
 
 MISSED_POLLS = 3
 
@@ -92,7 +92,7 @@ class Client(object):
 
         if deviceid not in self._devices and service == protocol.SERVICE_UDP:
             # Create a new Device
-            new_device = Device(deviceid, host, self)
+            new_device = device.Device(deviceid, host, self)
 
             # Send its own packets to it
             pktfilter = lambda p:(

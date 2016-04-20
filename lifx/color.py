@@ -1,5 +1,5 @@
 from collections import namedtuple
-import protocol
+from lifx import protocol
 
 HUE_MAX = 360
 KELVIN_MIN = 2500

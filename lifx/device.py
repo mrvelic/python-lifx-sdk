@@ -1,9 +1,9 @@
 from datetime import datetime
-import protocol
+from lifx import protocol
 from threading import Event
 from collections import namedtuple
 from lifx.color import modify_color
-import color
+from lifx import color
 import time
 
 DEFAULT_DURATION = 200
@@ -190,12 +190,22 @@ class Device(object):
         return response.group
 
     @property
+    def group_label(self):
+        response = self._get_group_data()
+        return protocol.bytes_to_label(response.label)
+    
+    @property
     def location_id(self):
         """
         The id of the group that the Device is in. Read Only.
         """
         response = self._get_location_data()
         return response.location
+
+    @property
+    def location_label(self):
+        response = self._get_location_data()
+        return protocol.bytes_to_label(response.label)
 
     @property
     def udp_port(self):
@@ -246,7 +256,7 @@ class Device(object):
         """
         The latency to the device. Read Only.
         """
-        ping_payload = bytearray('\x00' * 64)
+        ping_payload = bytearray('\x00' * 64, 'utf-8')
         start = time.time()
         response = self._block_for_response(ping_payload, pkt_type=protocol.TYPE_ECHOREQUEST)
         end = time.time()

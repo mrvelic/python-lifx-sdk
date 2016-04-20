@@ -242,14 +242,14 @@ messages = {
         ]),
     },
     TYPE_SETLABEL: {
-        'format': 'b256',
+        'format': 'r256',
         'byteswap': '1' * 32,
         'fields': namedtuple('payload_setlabel', [
             'label',
         ]),
     },
     TYPE_STATELABEL: {
-        'format': 'b256',
+        'format': 'r256',
         'byteswap': '1' * 32,
         'fields': namedtuple('payload_statelabel', [
             'label',
@@ -298,7 +298,7 @@ messages = {
         ]),
     },
     TYPE_STATELOCATION: {
-        'format': 'b128b256u64',
+        'format': 'r128r256u64',
         'byteswap': '1' * 16 + '1' * 32 + '8',
         'fields': namedtuple('payload_statelocation', [
             'location',
@@ -313,7 +313,7 @@ messages = {
         ]),
     },
     TYPE_STATEGROUP: {
-        'format': 'b128b256u64',
+        'format': 'r128r256u64',
         'byteswap': '1' * 16 + '1' * 32 + '8',
         'fields': namedtuple('payload_stategroup', [
             'group',
@@ -322,14 +322,14 @@ messages = {
         ]),
     },
     TYPE_ECHOREQUEST: {
-        'format': 'b512',
+        'format': 'r512',
         'byteswap': '1' * 64,
         'fields': namedtuple('payload_echorequest', [
             'payload',
         ]),
     },
     TYPE_ECHORESPONSE: {
-        'format': 'b512',
+        'format': 'r512',
         'byteswap': '1' * 64,
         'fields': namedtuple('payload_echoresponse', [
             'payload',
@@ -354,7 +354,7 @@ messages = {
         ]),
     },
     TYPE_LIGHT_STATE: {
-        'format': 'u16u16u16u16s16u16b256u64',
+        'format': 'u16u16u16u16s16u16r256u64',
         'byteswap': '222222' + '1' * 32 + '8',
         'fields': namedtuple('payload_light_state', [
             'hue',
@@ -424,7 +424,8 @@ def bytes_to_label(label_bytes):
     :param label_bytes: The bytes from the TYPE_STATELABEL packet
     :returns: unicode -- The label of the device
     """
-    strlen = label_bytes.find('\x00')
+        
+    strlen = label_bytes.index(b'\x00')
     return label_bytes[0:strlen].decode('utf-8')
 
 def pack_section(section, *args):
@@ -478,7 +479,7 @@ def make_packet(*args, **kwargs):
     packet_size = ( section_size(frame_header)
            + section_size(frame_address)
            + section_size(protocol_header)
-           + section_size(messages[pkt_type]) ) / 8
+           + section_size(messages[pkt_type]) ) // 8
 
     origin = 0 # Origin is always zero
     tagged = 1 if target is None else 0
@@ -537,7 +538,7 @@ def parse_packet(data):
     :returns: namedtuple -- A named tuple representing the packet, with nested namedtuples for each header and the payload
     """
     # Frame Header
-    frame_header_size = section_size(frame_header) / 8
+    frame_header_size = section_size(frame_header) // 8
     frame_header_data = data[0:frame_header_size]
 
     frame_header_struct = unpack_section(
@@ -549,7 +550,7 @@ def parse_packet(data):
         return None
 
     # Frame Address
-    frame_address_size = section_size(frame_address) / 8
+    frame_address_size = section_size(frame_address) // 8
     frame_address_start = frame_header_size
     frame_address_end = frame_header_size + frame_address_size
     frame_address_data = data[frame_address_start:frame_address_end]
@@ -559,7 +560,7 @@ def parse_packet(data):
     )
 
     # Protocol Header
-    protocol_header_size = section_size(protocol_header) / 8
+    protocol_header_size = section_size(protocol_header) // 8
     protocol_header_start = frame_address_end
     protocol_header_end = protocol_header_start + protocol_header_size
     protocol_header_data = data[protocol_header_start:protocol_header_end]
@@ -572,7 +573,7 @@ def parse_packet(data):
     payload_start = protocol_header_end
     if protocol_header_struct.pkt_type in messages.keys():
         payload = messages[protocol_header_struct.pkt_type]
-        payload_size = section_size(payload) / 8
+        payload_size = section_size(payload) // 8
         payload_end = payload_start + payload_size
         payload_data = data[payload_start:payload_end]
         payload_struct = unpack_section(

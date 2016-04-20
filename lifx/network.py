@@ -1,4 +1,4 @@
-import protocol
+from lifx import protocol
 import socket
 import threading
 from binascii import hexlify
@@ -54,7 +54,7 @@ class NetworkTransport(object):
         self._current_handler_id += 1
 
     def _handle_packet(self, address, packet):
-        for h in self._packet_handlers.values():
+        for h in self._packet_handlers.copy().values():
             if h.pktfilter(packet):
                 host, port = address
                 h.handler(host, port, packet)

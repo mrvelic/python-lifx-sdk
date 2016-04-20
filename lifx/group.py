@@ -1,6 +1,6 @@
-from device import DEFAULT_DURATION
+from lifx.device import DEFAULT_DURATION
 
-import protocol
+from lifx import protocol
 
 class Group(object):
     def __init__(self, group_id, client, member_func, label_func):
